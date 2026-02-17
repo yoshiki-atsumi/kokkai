@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-17T18:11:07.048Z",
+  "updatedAt": "2026-02-17T18:54:36.670Z",
   "chambers": [
     {
       "key": "representatives",
@@ -76,68 +76,108 @@
       "house": "参議院",
       "groups": [
         {
-          "name": "自由民主党",
-          "seats": 247,
+          "name": "自由民主党・無所属の会",
+          "seats": 101,
           "bloc": "government",
-          "color": "#c73a3f",
+          "color": "#c6393d",
           "order": 1,
           "shortLabel": "自民"
         },
         {
-          "name": "公明党",
-          "seats": 32,
+          "name": "立憲民主・無所属",
+          "seats": 40,
           "bloc": "government",
-          "color": "#f08c2e",
-          "order": 2,
-          "shortLabel": "公明"
-        },
-        {
-          "name": "立憲民主党",
-          "seats": 98,
-          "bloc": "opposition",
-          "color": "#e0559b",
-          "order": 10,
+          "color": "#5aa3d3",
+          "order": 101,
           "shortLabel": "立憲"
         },
         {
-          "name": "日本維新の会",
-          "seats": 41,
+          "name": "国民民主党・新緑風会",
+          "seats": 25,
           "bloc": "opposition",
-          "color": "#6cb24f",
-          "order": 11,
-          "shortLabel": "維新"
-        },
-        {
-          "name": "国民民主党",
-          "seats": 28,
-          "bloc": "opposition",
-          "color": "#58a0dd",
-          "order": 12,
+          "color": "#fac60d",
+          "order": 102,
           "shortLabel": "国民"
         },
         {
-          "name": "日本共産党",
-          "seats": 11,
+          "name": "公明党",
+          "seats": 21,
+          "bloc": "government",
+          "color": "#d36493",
+          "order": 103,
+          "shortLabel": "公明"
+        },
+        {
+          "name": "日本維新の会",
+          "seats": 19,
+          "bloc": "government",
+          "color": "#8ec66c",
+          "order": 2,
+          "shortLabel": "維新"
+        },
+        {
+          "name": "参政党",
+          "seats": 15,
           "bloc": "opposition",
-          "color": "#f3c20d",
-          "order": 13,
+          "color": "#f66620",
+          "order": 104,
+          "shortLabel": "参政"
+        },
+        {
+          "name": "日本共産党",
+          "seats": 7,
+          "bloc": "opposition",
+          "color": "#eb6863",
+          "order": 105,
           "shortLabel": "共産"
         },
         {
           "name": "れいわ新選組",
-          "seats": 9,
+          "seats": 5,
           "bloc": "opposition",
-          "color": "#78cfc7",
-          "order": 14,
+          "color": "#ff69b4",
+          "order": 106,
           "shortLabel": "れいわ"
         },
         {
-          "name": "その他",
-          "seats": 10,
+          "name": "日本保守党",
+          "seats": 2,
           "bloc": "opposition",
-          "color": "#8a6f3c",
-          "order": 99,
-          "shortLabel": "他"
+          "color": "#0A82DB",
+          "order": 107,
+          "shortLabel": "保守"
+        },
+        {
+          "name": "沖縄の風",
+          "seats": 2,
+          "bloc": "opposition",
+          "color": "#e73636",
+          "order": 108,
+          "shortLabel": "沖縄"
+        },
+        {
+          "name": "チームみらい・無所属の会",
+          "seats": 2,
+          "bloc": "opposition",
+          "color": "#99e4ce",
+          "order": 109,
+          "shortLabel": "みらい"
+        },
+        {
+          "name": "社会民主党",
+          "seats": 2,
+          "bloc": "opposition",
+          "color": "#67b1c0",
+          "order": 110,
+          "shortLabel": "社民"
+        },
+        {
+          "name": "各派に属しない議員",
+          "seats": 6,
+          "bloc": "opposition",
+          "color": "#555555",
+          "order": 111,
+          "shortLabel": "無所属"
         }
       ]
     }
