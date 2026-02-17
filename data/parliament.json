@@ -1,17 +1,17 @@
 {
-  "updatedAt": "2026-02-17T18:06:04.101Z",
+  "updatedAt": "2026-02-17T18:11:07.048Z",
   "chambers": [
     {
       "key": "representatives",
       "house": "衆議院",
       "groups": [
         {
-          "name": "自由民主党",
+          "name": "渥美党",
           "seats": 247,
           "bloc": "government",
           "color": "#c73a3f",
           "order": 1,
-          "shortLabel": "自民"
+          "shortLabel": "渥美党"
         },
         {
           "name": "公明党",
