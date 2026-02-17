@@ -321,6 +321,9 @@ async function getParliamentData() {
     // #region agent log
     fetch("http://127.0.0.1:7243/ingest/399f9f04-ff77-4dd2-bc35-4f223678d63e",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({runId:"run1",hypothesisId:"H2",location:"app.js:getParliamentData:payload",message:"payload summary",data:{isArrayPayload:Array.isArray(payload),chambersCount:Array.isArray(chambers)?chambers.length:-1,updatedAt:payload?.updatedAt||null},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
+    // #region agent log
+    fetch("http://127.0.0.1:7243/ingest/399f9f04-ff77-4dd2-bc35-4f223678d63e",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({runId:"run1",hypothesisId:"H5",location:"app.js:getParliamentData:chamberGroups",message:"chamber group counts from json",data:{counts:Array.isArray(chambers)?chambers.map((c)=>({key:c?.key,groupCount:Array.isArray(c?.groups)?c.groups.length:-1})):[]},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     if (!Array.isArray(chambers)) {
       throw new Error("Invalid JSON structure: chambers is missing");
     }
