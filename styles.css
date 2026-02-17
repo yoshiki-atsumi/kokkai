@@ -1,0 +1,213 @@
+:root {
+  --bg: #ffffff;
+  --ink: #222222;
+  --muted: #666666;
+  --line: #dddddd;
+  --card: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+}
+
+.layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  display: grid;
+  gap: 14px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.subtitle {
+  margin: 6px 0 4px;
+  color: var(--muted);
+}
+
+.last-updated {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.chambers {
+  display: grid;
+  gap: 16px;
+}
+
+.chamber-block {
+  display: grid;
+  gap: 10px;
+}
+
+.chamber-title {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.bar-title {
+  font-size: 0.9rem;
+  color: #444;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.faction-card,
+.bloc-card {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fff;
+}
+
+.faction-bar,
+.bloc-bar {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #d8d8d8;
+  overflow: hidden;
+}
+
+.faction-segment,
+.bloc-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  white-space: nowrap;
+  padding: 0 8px;
+}
+
+.faction-segment {
+  min-height: 120px;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.08em;
+  font-size: 0.88rem;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+.bloc-card {
+  position: relative;
+  padding-bottom: 42px;
+}
+
+.bloc-government {
+  background: #b54343;
+}
+
+.bloc-opposition {
+  background: #3f6fa9;
+}
+
+.bloc-markers {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 6px;
+  height: 30px;
+}
+
+.bloc-marker {
+  position: absolute;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.bloc-marker-arrow {
+  width: 0;
+  height: 0;
+  margin: 0 auto;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 12px solid #111;
+}
+
+.bloc-marker-label {
+  margin-top: 2px;
+  font-size: 0.82rem;
+  color: #222;
+}
+
+.bloc-marker-value {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.legend-panel {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+}
+
+.legend-panel {
+  padding: 12px;
+}
+
+.legend-panel h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+
+.legend-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.legend-table th,
+.legend-table td {
+  padding: 6px 6px;
+  border-bottom: 1px solid #efefef;
+}
+
+.legend-table th {
+  text-align: left;
+  color: #555;
+  font-weight: 700;
+}
+
+.legend-table th:nth-child(3),
+.legend-table th:nth-child(4),
+.legend-table td:nth-child(3),
+.legend-table td:nth-child(4) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.legend-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  flex: 0 0 auto;
+}
+
+.legend-row.is-active {
+  background: #f7f9ff;
+  font-weight: 700;
+}
+
