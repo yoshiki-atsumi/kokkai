@@ -305,34 +305,19 @@ function updateTimestamp() {
 }
 
 async function getParliamentData() {
-  // #region agent log
-  fetch("http://127.0.0.1:7243/ingest/399f9f04-ff77-4dd2-bc35-4f223678d63e",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({runId:"run1",hypothesisId:"H1",location:"app.js:getParliamentData:start",message:"start loading parliament data",data:{path:"./data/parliament.json"},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
   try {
     const response = await fetch("./data/parliament.json", { cache: "no-store" });
-    // #region agent log
-    fetch("http://127.0.0.1:7243/ingest/399f9f04-ff77-4dd2-bc35-4f223678d63e",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({runId:"run1",hypothesisId:"H1",location:"app.js:getParliamentData:response",message:"fetched static json response",data:{ok:response.ok,status:response.status},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }
     const payload = await response.json();
     const chambers = Array.isArray(payload) ? payload : payload.chambers;
-    // #region agent log
-    fetch("http://127.0.0.1:7243/ingest/399f9f04-ff77-4dd2-bc35-4f223678d63e",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({runId:"run1",hypothesisId:"H2",location:"app.js:getParliamentData:payload",message:"payload summary",data:{isArrayPayload:Array.isArray(payload),chambersCount:Array.isArray(chambers)?chambers.length:-1,updatedAt:payload?.updatedAt||null},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
-    // #region agent log
-    fetch("http://127.0.0.1:7243/ingest/399f9f04-ff77-4dd2-bc35-4f223678d63e",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({runId:"run1",hypothesisId:"H5",location:"app.js:getParliamentData:chamberGroups",message:"chamber group counts from json",data:{counts:Array.isArray(chambers)?chambers.map((c)=>({key:c?.key,groupCount:Array.isArray(c?.groups)?c.groups.length:-1})):[]},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     if (!Array.isArray(chambers)) {
       throw new Error("Invalid JSON structure: chambers is missing");
     }
     state.sourceUpdatedAt = payload.updatedAt || null;
     return chambers;
   } catch (error) {
-    // #region agent log
-    fetch("http://127.0.0.1:7243/ingest/399f9f04-ff77-4dd2-bc35-4f223678d63e",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({runId:"run1",hypothesisId:"H1",location:"app.js:getParliamentData:catch",message:"fallback to mock data",data:{error:String(error?.message||error)},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     console.warn("静的JSONの取得に失敗したためモックデータを使用します", error);
     state.sourceUpdatedAt = null;
     return MOCK_PARLIAMENT_DATA;
@@ -341,13 +326,7 @@ async function getParliamentData() {
 
 async function bootstrap() {
   const raw = await getParliamentData();
-  // #region agent log
-  fetch("http://127.0.0.1:7243/ingest/399f9f04-ff77-4dd2-bc35-4f223678d63e",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({runId:"run1",hypothesisId:"H3",location:"app.js:bootstrap:raw",message:"raw chamber totals",data:{totals:Array.isArray(raw)?raw.map((c)=>({key:c.key,total:(c.groups||[]).reduce((s,g)=>s+(Number(g.seats)||0),0)})):[]},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
   state.chambers = normalizeData(raw);
-  // #region agent log
-  fetch("http://127.0.0.1:7243/ingest/399f9f04-ff77-4dd2-bc35-4f223678d63e",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({runId:"run1",hypothesisId:"H4",location:"app.js:bootstrap:normalized",message:"normalized chamber totals",data:{totals:state.chambers.map((c)=>({key:c.key,total:c.groups.reduce((s,g)=>s+(Number(g.seats)||0),0),groupCount:c.groups.length}))},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
   renderAllScaffolds();
   state.chambers.forEach((chamber) => renderChamber(chamber));
   updateTimestamp();
