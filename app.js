@@ -56,6 +56,7 @@ const MOCK_PARLIAMENT_DATA = [
 const state = {
   chambers: [],
   highlightedByChamber: {},
+  sourceUpdatedAt: null,
 };
 
 function inferBloc(groupName) {
@@ -291,6 +292,7 @@ function renderAllScaffolds() {
 
 function updateTimestamp() {
   const node = document.getElementById("last-updated");
+  const sourceTime = state.sourceUpdatedAt ? new Date(state.sourceUpdatedAt) : new Date();
   const formatter = new Intl.DateTimeFormat("ja-JP", {
     year: "numeric",
     month: "2-digit",
@@ -299,12 +301,27 @@ function updateTimestamp() {
     minute: "2-digit",
     second: "2-digit",
   });
-  node.textContent = `更新日時: ${formatter.format(new Date())}`;
+  node.textContent = `更新日時: ${formatter.format(sourceTime)}`;
 }
 
 async function getParliamentData() {
-  // 将来は fetch("/api/kokkai-groups.json") に置き換え。
-  return Promise.resolve(MOCK_PARLIAMENT_DATA);
+  try {
+    const response = await fetch("./data/parliament.json", { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    const payload = await response.json();
+    const chambers = Array.isArray(payload) ? payload : payload.chambers;
+    if (!Array.isArray(chambers)) {
+      throw new Error("Invalid JSON structure: chambers is missing");
+    }
+    state.sourceUpdatedAt = payload.updatedAt || null;
+    return chambers;
+  } catch (error) {
+    console.warn("静的JSONの取得に失敗したためモックデータを使用します", error);
+    state.sourceUpdatedAt = null;
+    return MOCK_PARLIAMENT_DATA;
+  }
 }
 
 async function bootstrap() {

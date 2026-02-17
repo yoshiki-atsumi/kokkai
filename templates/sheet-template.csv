@@ -1,0 +1,9 @@
+name,seats,bloc,color,order,shortLabel
+自由民主党,247,government,#c73a3f,1,自民
+公明党,32,government,#f08c2e,2,公明
+立憲民主党,98,opposition,#e0559b,10,立憲
+日本維新の会,41,opposition,#6cb24f,11,維新
+国民民主党,28,opposition,#58a0dd,12,国民
+日本共産党,11,opposition,#f3c20d,13,共産
+れいわ新選組,9,opposition,#78cfc7,14,れいわ
+その他,10,opposition,#8a6f3c,99,他
