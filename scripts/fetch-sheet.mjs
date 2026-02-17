@@ -16,6 +16,24 @@ if (!SHEET_SYU_URL || !SHEET_SAN_URL) {
 
 const GOV_NAME_SET = new Set(["自由民主党", "公明党"]);
 
+function resolveSheetCsvUrl(rawUrl) {
+  const url = new URL(rawUrl);
+  const isGoogleSheet = url.hostname.includes("docs.google.com") && url.pathname.includes("/spreadsheets/");
+  if (!isGoogleSheet) {
+    return rawUrl;
+  }
+  if (url.pathname.endsWith("/export") && url.searchParams.get("format") === "csv") {
+    return url.toString();
+  }
+  const idMatch = /\/spreadsheets\/d\/([^/]+)/.exec(url.pathname);
+  if (!idMatch?.[1]) {
+    return rawUrl;
+  }
+  const hashMatch = /gid=(\d+)/.exec(url.hash || "");
+  const gid = url.searchParams.get("gid") || hashMatch?.[1] || "0";
+  return `https://docs.google.com/spreadsheets/d/${idMatch[1]}/export?format=csv&gid=${gid}`;
+}
+
 function parseCsvLine(line) {
   const out = [];
   let value = "";
@@ -100,12 +118,20 @@ function normalizeRows(rows) {
 }
 
 async function fetchSheet(url) {
-  const res = await fetch(url, { headers: { "user-agent": "kokkai-fetch-bot" } });
+  const csvUrl = resolveSheetCsvUrl(url);
+  const res = await fetch(csvUrl, { headers: { "user-agent": "kokkai-fetch-bot" } });
   if (!res.ok) {
-    throw new Error(`Failed to fetch ${url}: HTTP ${res.status}`);
+    throw new Error(`Failed to fetch ${csvUrl}: HTTP ${res.status}`);
   }
   const text = await res.text();
-  return normalizeRows(parseCsv(text));
+  if (text.startsWith("<!DOCTYPE html") || text.startsWith("<html")) {
+    throw new Error(`Spreadsheet URL is not a CSV endpoint: ${csvUrl}`);
+  }
+  const rows = normalizeRows(parseCsv(text));
+  if (rows.length === 0) {
+    throw new Error(`No valid rows parsed from spreadsheet: ${csvUrl}`);
+  }
+  return rows;
 }
 
 async function main() {
