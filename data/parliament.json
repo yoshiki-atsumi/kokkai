@@ -1,31 +1,15 @@
 {
-  "updatedAt": "2026-02-18T00:00:00+09:00",
+  "updatedAt": "2026-02-17T16:21:53.469Z",
   "chambers": [
     {
       "key": "representatives",
       "house": "衆議院",
-      "groups": [
-        { "name": "自由民主党", "seats": 247, "bloc": "government", "color": "#c73a3f", "order": 1, "shortLabel": "自民" },
-        { "name": "公明党", "seats": 32, "bloc": "government", "color": "#f08c2e", "order": 2, "shortLabel": "公明" },
-        { "name": "立憲民主党", "seats": 98, "bloc": "opposition", "color": "#e0559b", "order": 10, "shortLabel": "立憲" },
-        { "name": "日本維新の会", "seats": 41, "bloc": "opposition", "color": "#6cb24f", "order": 11, "shortLabel": "維新" },
-        { "name": "国民民主党", "seats": 28, "bloc": "opposition", "color": "#58a0dd", "order": 12, "shortLabel": "国民" },
-        { "name": "れいわ新選組", "seats": 9, "bloc": "opposition", "color": "#78cfc7", "order": 13, "shortLabel": "れいわ" },
-        { "name": "その他", "seats": 10, "bloc": "opposition", "color": "#8a6f3c", "order": 99, "shortLabel": "他" }
-      ]
+      "groups": []
     },
     {
       "key": "councillors",
       "house": "参議院",
-      "groups": [
-        { "name": "自由民主党", "seats": 114, "bloc": "government", "color": "#c73a3f", "order": 1, "shortLabel": "自民" },
-        { "name": "公明党", "seats": 27, "bloc": "government", "color": "#f08c2e", "order": 2, "shortLabel": "公明" },
-        { "name": "立憲民主・社民", "seats": 38, "bloc": "opposition", "color": "#e0559b", "order": 10, "shortLabel": "立憲・社民" },
-        { "name": "日本維新の会", "seats": 21, "bloc": "opposition", "color": "#6cb24f", "order": 11, "shortLabel": "維新" },
-        { "name": "国民民主党", "seats": 12, "bloc": "opposition", "color": "#58a0dd", "order": 12, "shortLabel": "国民" },
-        { "name": "日本共産党", "seats": 11, "bloc": "opposition", "color": "#f3c20d", "order": 13, "shortLabel": "共産" },
-        { "name": "その他", "seats": 25, "bloc": "opposition", "color": "#8a6f3c", "order": 99, "shortLabel": "他" }
-      ]
+      "groups": []
     }
   ]
 }
