@@ -65,16 +65,16 @@ body {
   display: grid;
   gap: 16px;
   width: 100%;
-  max-width: 100%;
   margin: 0;
+  box-sizing: border-box;
 }
 
 .chamber-block {
   display: grid;
   gap: 10px;
   width: 100%;
-  max-width: 100%;
   margin: 0;
+  box-sizing: border-box;
 }
 
 .chamber-title {
@@ -93,18 +93,17 @@ body {
 .bloc-card {
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 8px;
+  padding: 10px;
   background: #fff;
   width: 100%;
-  max-width: 100%;
-  overflow: hidden;
+  box-sizing: border-box;
 }
 
 @media (min-width: 768px) {
   .faction-card,
   .bloc-card {
     border-radius: 10px;
-    padding: 10px 12px;
+    padding: 12px;
   }
 }
 
@@ -112,10 +111,10 @@ body {
 .bloc-bar {
   display: flex;
   width: 100%;
-  max-width: 100%;
   min-height: 40px;
   border: 1px solid #d8d8d8;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 @media (min-width: 768px) {
@@ -241,10 +240,9 @@ body {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--card);
-  padding: 8px;
+  padding: 10px;
   width: 100%;
-  max-width: 100%;
-  overflow: hidden;
+  box-sizing: border-box;
 }
 
 @media (min-width: 768px) {
@@ -261,9 +259,9 @@ body {
 
 .legend-table-wrapper {
   width: 100%;
-  max-width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
 }
 
 @media (min-width: 768px) {
