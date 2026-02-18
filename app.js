@@ -160,14 +160,18 @@ function renderLegend(chamber) {
       <td>${group.seats}</td>
       <td>${ratio}%</td>
     `;
-    tr.addEventListener("mouseenter", () => {
+    const activateHighlight = () => {
       state.highlightedByChamber[chamber.key] = group.name;
       updateHighlight(chamber);
-    });
-    tr.addEventListener("mouseleave", () => {
+    };
+    const deactivateHighlight = () => {
       state.highlightedByChamber[chamber.key] = "";
       updateHighlight(chamber);
-    });
+    };
+    tr.addEventListener("mouseenter", activateHighlight);
+    tr.addEventListener("mouseleave", deactivateHighlight);
+    tr.addEventListener("touchstart", activateHighlight, { passive: true });
+    tr.addEventListener("touchend", deactivateHighlight, { passive: true });
     tbody.appendChild(tr);
   });
 }
@@ -266,17 +270,19 @@ function renderChamberScaffold(chamber) {
       </section>
       <aside class="legend-panel">
         <h3>会派一覧</h3>
-        <table class="legend-table">
-          <thead>
-            <tr>
-              <th>会派</th>
-              <th>与野党分類</th>
-              <th>議席数</th>
-              <th>議席割合</th>
-            </tr>
-          </thead>
-          <tbody id="legend-body-${chamber.key}"></tbody>
-        </table>
+        <div class="legend-table-wrapper">
+          <table class="legend-table">
+            <thead>
+              <tr>
+                <th>会派</th>
+                <th>与野党分類</th>
+                <th>議席数</th>
+                <th>議席割合</th>
+              </tr>
+            </thead>
+            <tbody id="legend-body-${chamber.key}"></tbody>
+          </table>
+        </div>
       </aside>
     </section>
   `;
