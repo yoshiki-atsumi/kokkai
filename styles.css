@@ -28,15 +28,20 @@ body {
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  padding: 12px;
+  padding: 12px 12px;
   display: grid;
   gap: 14px;
 }
 
 @media (min-width: 768px) {
   .layout {
-    padding: 20px;
+    padding: 20px 20px;
   }
+}
+
+.header {
+  margin: 0;
+  padding: 0;
 }
 
 .header h1 {
@@ -61,6 +66,7 @@ body {
   gap: 16px;
   width: 100%;
   max-width: 100%;
+  margin: 0;
 }
 
 .chamber-block {
@@ -68,17 +74,18 @@ body {
   gap: 10px;
   width: 100%;
   max-width: 100%;
+  margin: 0;
 }
 
 .chamber-title {
-  margin: 0;
-  font-size: 1.2rem;
+  margin: 0 0 10px 0;
+  font-size: clamp(1.1rem, 4vw, 1.2rem);
 }
 
 .bar-title {
   font-size: clamp(0.8rem, 2.5vw, 0.9rem);
   color: #444;
-  margin-bottom: 6px;
+  margin: 0 0 6px 0;
   font-weight: 700;
 }
 
@@ -248,7 +255,7 @@ body {
 }
 
 .legend-panel h3 {
-  margin: 0 0 8px;
+  margin: 0 0 8px 0;
   font-size: clamp(0.9rem, 3vw, 1rem);
 }
 
@@ -257,14 +264,11 @@ body {
   max-width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  margin: 0 -8px;
-  padding: 0 8px;
 }
 
 @media (min-width: 768px) {
   .legend-table-wrapper {
-    margin: 0;
-    padding: 0;
+    overflow-x: visible;
   }
 }
 
@@ -272,11 +276,12 @@ body {
   width: 100%;
   border-collapse: collapse;
   font-size: clamp(0.75rem, 2.3vw, 0.9rem);
+  margin: 0;
 }
 
 .legend-table th,
 .legend-table td {
-  padding: 4px 3px;
+  padding: 4px 4px;
   border-bottom: 1px solid #efefef;
   white-space: nowrap;
 }
@@ -284,12 +289,28 @@ body {
 .legend-table th:first-child,
 .legend-table td:first-child {
   white-space: normal;
+  padding-left: 4px;
+}
+
+.legend-table th:last-child,
+.legend-table td:last-child {
+  padding-right: 4px;
 }
 
 @media (min-width: 768px) {
   .legend-table th,
   .legend-table td {
     padding: 6px 6px;
+  }
+  
+  .legend-table th:first-child,
+  .legend-table td:first-child {
+    padding-left: 6px;
+  }
+  
+  .legend-table th:last-child,
+  .legend-table td:last-child {
+    padding-right: 6px;
   }
 }
 
