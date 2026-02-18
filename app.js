@@ -11,7 +11,6 @@ const PALETTE = [
   "#5c4bd8",
 ];
 
-const GOVERNMENT_GROUP_NAMES = new Set(["自由民主党", "公明党"]);
 const GROUP_SHORT_LABELS = {
   自由民主党: "自民",
   立憲民主党: "立憲",
@@ -60,7 +59,7 @@ const state = {
 };
 
 function inferBloc(groupName) {
-  return GOVERNMENT_GROUP_NAMES.has(groupName) ? "government" : "opposition";
+  return "opposition";
 }
 
 function shortLabel(groupName) {

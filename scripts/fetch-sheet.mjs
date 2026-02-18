@@ -14,8 +14,6 @@ if (!SHEET_SYU_URL || !SHEET_SAN_URL) {
   throw new Error("SHEET_SYU_URL と SHEET_SAN_URL を GitHub Secrets に設定してください。");
 }
 
-const GOV_NAME_SET = new Set(["自由民主党", "公明党"]);
-
 function resolveSheetCsvUrl(rawUrl) {
   const url = new URL(rawUrl);
   const isGoogleSheet = url.hostname.includes("docs.google.com") && url.pathname.includes("/spreadsheets/");
@@ -106,7 +104,7 @@ function normalizeRows(rows) {
       const shortLabel = pick(row, ["shortLabel", "abbr", "alias", "略称"]) || undefined;
       const blocRaw = pick(row, ["bloc", "与野党分類", "区分"]).toLowerCase();
       let bloc = "opposition";
-      if (["government", "gov", "ruling", "与党"].includes(blocRaw) || GOV_NAME_SET.has(name)) {
+      if (["government", "gov", "ruling", "与党"].includes(blocRaw)) {
         bloc = "government";
       }
       const orderRaw = pick(row, ["order", "displayOrder", "sortOrder", "順番", "表示順"]);
