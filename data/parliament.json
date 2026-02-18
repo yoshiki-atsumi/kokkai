@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-18T07:04:53.212Z",
+  "updatedAt": "2026-02-18T07:54:48.682Z",
   "chambers": [
     {
       "key": "representatives",
@@ -32,7 +32,7 @@
           "bloc": "opposition",
           "color": "#fac60d",
           "order": 102,
-          "shortLabel": "国民"
+          "shortLabel": "民主"
         },
         {
           "name": "公明党",
@@ -72,7 +72,7 @@
           "bloc": "opposition",
           "color": "#ff69b4",
           "order": 106,
-          "shortLabel": "れいわ"
+          "shortLabel": "れ新"
         },
         {
           "name": "日本保守党",
@@ -96,7 +96,7 @@
           "bloc": "opposition",
           "color": "#99e4ce",
           "order": 109,
-          "shortLabel": "みらい"
+          "shortLabel": "みら"
         },
         {
           "name": "社会民主党",
