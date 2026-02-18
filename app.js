@@ -117,6 +117,14 @@ function renderFactionBar(chamber) {
   }
   container.innerHTML = "";
 
+  if (chamber.groups.length === 0) {
+    const placeholder = document.createElement("div");
+    placeholder.style.cssText = "width: 100%; text-align: center; padding: 40px 10px; color: #999; background: #f5f5f5;";
+    placeholder.textContent = "データがありません";
+    container.appendChild(placeholder);
+    return;
+  }
+
   chamber.groups.forEach((group) => {
     const pct = total > 0 ? (group.seats / total) * 100 : 0;
     const segment = document.createElement("div");
@@ -145,6 +153,12 @@ function renderLegend(chamber) {
     return;
   }
   tbody.innerHTML = "";
+  if (chamber.groups.length === 0) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="4" style="text-align: center; color: #999; padding: 20px;">データがありません（解散中など）</td>`;
+    tbody.appendChild(tr);
+    return;
+  }
   chamber.groups.forEach((group) => {
     const ratio = total > 0 ? ((group.seats / total) * 100).toFixed(1) : "0.0";
     const tr = document.createElement("tr");
@@ -182,8 +196,8 @@ function renderBlocSummary(chamber) {
     .reduce((sum, group) => sum + group.seats, 0);
   const oppositionSeats = Math.max(0, total - governmentSeats);
 
-  const govPct = total > 0 ? (governmentSeats / total) * 100 : 0;
-  const oppPct = Math.max(0, 100 - govPct);
+  const govPct = total > 0 ? (governmentSeats / total) * 100 : 50;
+  const oppPct = total > 0 ? Math.max(0, 100 - govPct) : 50;
 
   const govNode = document.getElementById(`bloc-government-${chamber.key}`);
   const oppNode = document.getElementById(`bloc-opposition-${chamber.key}`);
@@ -194,6 +208,18 @@ function renderBlocSummary(chamber) {
     return;
   }
 
+  if (total === 0) {
+    govNode.style.width = "50%";
+    oppNode.style.width = "50%";
+    govNode.textContent = "データなし";
+    oppNode.textContent = "";
+    majorityNode.style.display = "none";
+    twoThirdNode.style.display = "none";
+    return;
+  }
+
+  majorityNode.style.display = "block";
+  twoThirdNode.style.display = "block";
   govNode.style.width = `${govPct}%`;
   oppNode.style.width = `${oppPct}%`;
   govNode.textContent = `与党 ${governmentSeats}`;

@@ -126,9 +126,6 @@ async function fetchSheet(url) {
     throw new Error(`Spreadsheet URL is not a CSV endpoint: ${csvUrl}`);
   }
   const rows = normalizeRows(parseCsv(text));
-  if (rows.length === 0) {
-    throw new Error(`No valid rows parsed from spreadsheet: ${csvUrl}`);
-  }
   return rows;
 }
 
