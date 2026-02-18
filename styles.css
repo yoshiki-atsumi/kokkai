@@ -163,6 +163,11 @@ body {
   }
 }
 
+.faction-vacancy {
+  background: #9aa0a6;
+  color: #ffffff;
+}
+
 .bloc-card {
   position: relative;
   padding-bottom: 60px;
@@ -180,6 +185,11 @@ body {
 
 .bloc-opposition {
   background: #3f6fa9;
+}
+
+.bloc-vacancy {
+  background: #9aa0a6;
+  color: #fff;
 }
 
 .bloc-markers {

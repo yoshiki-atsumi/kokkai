@@ -58,6 +58,15 @@ const state = {
   sourceUpdatedAt: null,
 };
 
+const CHAMBER_RULES = {
+  representatives: { capacity: 465 },
+  councillors: { capacity: 248 },
+};
+
+function getChamberRule(chamberKey) {
+  return CHAMBER_RULES[chamberKey] || null;
+}
+
 function inferBloc(groupName) {
   return "opposition";
 }
@@ -148,6 +157,10 @@ function renderFactionBar(chamber) {
 
 function renderLegend(chamber) {
   const total = chamber.groups.reduce((sum, group) => sum + group.seats, 0);
+  const rule = getChamberRule(chamber.key);
+  const capacity = rule?.capacity ?? total;
+  const baseSeats = Math.max(total, capacity);
+  const vacancySeats = Math.max(0, capacity - total);
   const tbody = document.getElementById(`legend-body-${chamber.key}`);
   if (!tbody) {
     return;
@@ -160,7 +173,7 @@ function renderLegend(chamber) {
     return;
   }
   chamber.groups.forEach((group) => {
-    const ratio = total > 0 ? ((group.seats / total) * 100).toFixed(1) : "0.0";
+    const ratio = baseSeats > 0 ? ((group.seats / baseSeats) * 100).toFixed(1) : "0.0";
     const tr = document.createElement("tr");
     tr.className = "legend-row";
     tr.dataset.group = group.name;
@@ -187,6 +200,23 @@ function renderLegend(chamber) {
     tr.addEventListener("touchend", deactivateHighlight, { passive: true });
     tbody.appendChild(tr);
   });
+
+  if (vacancySeats > 0) {
+    const ratio = baseSeats > 0 ? ((vacancySeats / baseSeats) * 100).toFixed(1) : "0.0";
+    const tr = document.createElement("tr");
+    tr.className = "legend-row legend-row-vacancy";
+    tr.dataset.group = "__vacancy__";
+    tr.innerHTML = `
+      <td class="legend-name-cell">
+        <span class="legend-dot" style="background:#9aa0a6"></span>
+        <span>欠員</span>
+      </td>
+      <td>欠員</td>
+      <td>${vacancySeats}</td>
+      <td>${ratio}%</td>
+    `;
+    tbody.appendChild(tr);
+  }
 }
 
 function renderBlocSummary(chamber) {
@@ -197,7 +227,7 @@ function renderBlocSummary(chamber) {
   const oppositionSeats = Math.max(0, total - governmentSeats);
 
   const govPct = total > 0 ? (governmentSeats / total) * 100 : 50;
-  const oppPct = total > 0 ? Math.max(0, 100 - govPct) : 50;
+  const oppPct = total > 0 ? (oppositionSeats / total) * 100 : 50;
 
   const govNode = document.getElementById(`bloc-government-${chamber.key}`);
   const oppNode = document.getElementById(`bloc-opposition-${chamber.key}`);
@@ -224,7 +254,6 @@ function renderBlocSummary(chamber) {
   oppNode.style.width = `${oppPct}%`;
   govNode.textContent = `与党 ${governmentSeats}`;
   oppNode.textContent = `野党・他 ${oppositionSeats}`;
-
   const majoritySeats = Math.floor(total / 2) + 1;
   const twoThirdSeats = Math.ceil((total * 2) / 3);
   const majorityPct = total > 0 ? (majoritySeats / total) * 100 : 0;
