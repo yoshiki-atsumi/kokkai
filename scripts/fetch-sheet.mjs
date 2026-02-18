@@ -138,8 +138,8 @@ async function main() {
   const payload = {
     updatedAt: new Date().toISOString(),
     chambers: [
-      { key: "representatives", house: "衆議院", groups: representativesRows },
-      { key: "councillors", house: "参議院", groups: councillorsRows },
+      { key: "representatives", house: "衆議院（定数：465）", groups: representativesRows },
+      { key: "councillors", house: "参議院（定数：248）", groups: councillorsRows },
     ],
   };
 

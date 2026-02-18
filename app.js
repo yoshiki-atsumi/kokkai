@@ -26,7 +26,7 @@ const GROUP_SHORT_LABELS = {
 const MOCK_PARLIAMENT_DATA = [
   {
     key: "representatives",
-    house: "衆議院",
+    house: "衆議院（定数：465）",
     groups: [
       { name: "自由民主党", seats: 247 },
       { name: "立憲民主党", seats: 98 },
@@ -39,7 +39,7 @@ const MOCK_PARLIAMENT_DATA = [
   },
   {
     key: "councillors",
-    house: "参議院",
+    house: "参議院（定数：248）",
     groups: [
       { name: "自由民主党", seats: 114 },
       { name: "立憲民主・社民", seats: 38 },

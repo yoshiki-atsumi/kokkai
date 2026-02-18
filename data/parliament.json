@@ -3,12 +3,12 @@
   "chambers": [
     {
       "key": "representatives",
-      "house": "衆議院",
+      "house": "衆議院（定数：465）",
       "groups": []
     },
     {
       "key": "councillors",
-      "house": "参議院",
+      "house": "参議院（定数：248）",
       "groups": [
         {
           "name": "自由民主党・無所属の会",
