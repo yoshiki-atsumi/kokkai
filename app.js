@@ -129,7 +129,7 @@ function renderFactionBar(chamber) {
   if (chamber.groups.length === 0) {
     const placeholder = document.createElement("div");
     placeholder.style.cssText = "width: 100%; text-align: center; padding: 40px 10px; color: #999; background: #f5f5f5;";
-    placeholder.textContent = "データがありません";
+    placeholder.textContent = "データがありません（解散など）";
     container.appendChild(placeholder);
     return;
   }
@@ -168,7 +168,7 @@ function renderLegend(chamber) {
   tbody.innerHTML = "";
   if (chamber.groups.length === 0) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="4" style="text-align: center; color: #999; padding: 20px;">データがありません（解散中など）</td>`;
+    tr.innerHTML = `<td colspan="4" style="text-align: center; color: #999; padding: 20px;">データがありません（解散など）</td>`;
     tbody.appendChild(tr);
     return;
   }
@@ -229,25 +229,29 @@ function renderBlocSummary(chamber) {
   const govPct = total > 0 ? (governmentSeats / total) * 100 : 50;
   const oppPct = total > 0 ? (oppositionSeats / total) * 100 : 50;
 
+  const barNode = document.getElementById(`bloc-bar-${chamber.key}`);
+  const markersWrapNode = document.getElementById(`bloc-markers-${chamber.key}`);
+  const emptyNode = document.getElementById(`bloc-empty-${chamber.key}`);
   const govNode = document.getElementById(`bloc-government-${chamber.key}`);
   const oppNode = document.getElementById(`bloc-opposition-${chamber.key}`);
   const majorityNode = document.getElementById(`marker-majority-${chamber.key}`);
   const twoThirdNode = document.getElementById(`marker-twothird-${chamber.key}`);
 
-  if (!govNode || !oppNode || !majorityNode || !twoThirdNode) {
+  if (!barNode || !markersWrapNode || !emptyNode || !govNode || !oppNode || !majorityNode || !twoThirdNode) {
     return;
   }
 
   if (total === 0) {
-    govNode.style.width = "50%";
-    oppNode.style.width = "50%";
-    govNode.textContent = "データなし";
-    oppNode.textContent = "";
-    majorityNode.style.display = "none";
-    twoThirdNode.style.display = "none";
+    barNode.style.display = "none";
+    markersWrapNode.style.display = "none";
+    emptyNode.style.display = "block";
+    emptyNode.textContent = "データがありません（解散など）";
     return;
   }
 
+  barNode.style.display = "flex";
+  markersWrapNode.style.display = "block";
+  emptyNode.style.display = "none";
   majorityNode.style.display = "block";
   twoThirdNode.style.display = "block";
   govNode.style.width = `${govPct}%`;
@@ -305,11 +309,11 @@ function renderChamberScaffold(chamber) {
       </section>
       <section class="bloc-card">
         <div class="bar-title">与野党</div>
-        <div class="bloc-bar">
+        <div id="bloc-bar-${chamber.key}" class="bloc-bar">
           <div id="bloc-government-${chamber.key}" class="bloc-segment bloc-government"></div>
           <div id="bloc-opposition-${chamber.key}" class="bloc-segment bloc-opposition"></div>
         </div>
-        <div class="bloc-markers">
+        <div id="bloc-markers-${chamber.key}" class="bloc-markers">
           <div id="marker-majority-${chamber.key}" class="bloc-marker">
             <div class="bloc-marker-arrow"></div>
             <div class="bloc-marker-label">過半数</div>
@@ -321,6 +325,7 @@ function renderChamberScaffold(chamber) {
             <div class="bloc-marker-value">-</div>
           </div>
         </div>
+        <div id="bloc-empty-${chamber.key}" class="bloc-empty-message"></div>
       </section>
       <aside class="legend-panel">
         <h3>会派一覧</h3>
