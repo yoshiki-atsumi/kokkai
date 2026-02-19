@@ -1,10 +1,75 @@
 {
-  "updatedAt": "2026-02-18T21:30:04.160Z",
+  "updatedAt": "2026-02-19T12:54:27.973Z",
   "chambers": [
     {
       "key": "representatives",
       "house": "衆議院（定数：465）",
-      "groups": []
+      "groups": [
+        {
+          "name": "自由民主党・無所属の会",
+          "seats": 316,
+          "bloc": "government",
+          "color": "#c6393d",
+          "order": 1,
+          "shortLabel": "自民"
+        },
+        {
+          "name": "中道改革連合・無所属",
+          "seats": 48,
+          "bloc": "opposition",
+          "color": "#5ab3ff",
+          "order": 101,
+          "shortLabel": "中道"
+        },
+        {
+          "name": "日本維新の会",
+          "seats": 36,
+          "bloc": "government",
+          "color": "#8ec66c",
+          "order": 2,
+          "shortLabel": "維新"
+        },
+        {
+          "name": "国民民主党・無所属クラブ",
+          "seats": 28,
+          "bloc": "opposition",
+          "color": "#fac60d",
+          "order": 102,
+          "shortLabel": "国民"
+        },
+        {
+          "name": "参政党",
+          "seats": 15,
+          "bloc": "opposition",
+          "color": "#f66620",
+          "order": 103,
+          "shortLabel": "参政"
+        },
+        {
+          "name": "チームみらい",
+          "seats": 11,
+          "bloc": "opposition",
+          "color": "#99e4ce",
+          "order": 104,
+          "shortLabel": "みらい"
+        },
+        {
+          "name": "日本共産党",
+          "seats": 4,
+          "bloc": "opposition",
+          "color": "#eb6863",
+          "order": 105,
+          "shortLabel": "共産"
+        },
+        {
+          "name": "無所属",
+          "seats": 7,
+          "bloc": "opposition",
+          "color": "#555555",
+          "order": 106,
+          "shortLabel": "無所属"
+        }
+      ]
     },
     {
       "key": "councillors",
