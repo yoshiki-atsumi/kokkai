@@ -27,6 +27,10 @@ const MOCK_PARLIAMENT_DATA = [
   {
     key: "representatives",
     house: "衆議院（定数：465）",
+    members: [
+      { name: "山田 太郎", reading: "やまだ たろう", party: "自民", district: "東京1", kaiha: "自由民主党" },
+      { name: "佐藤 花子", reading: "さとう はなこ", party: "立憲", district: "東京2", kaiha: "立憲民主党" },
+    ],
     groups: [
       { name: "自由民主党", seats: 247 },
       { name: "立憲民主党", seats: 98 },
@@ -40,6 +44,10 @@ const MOCK_PARLIAMENT_DATA = [
   {
     key: "councillors",
     house: "参議院（定数：248）",
+    members: [
+      { name: "鈴木 一郎", reading: "すずき いちろう", party: "自民", district: "比例", kaiha: "自由民主党" },
+      { name: "高橋 恵", reading: "たかはし めぐみ", party: "公明", district: "比例", kaiha: "公明党" },
+    ],
     groups: [
       { name: "自由民主党", seats: 114 },
       { name: "立憲民主・社民", seats: 38 },
@@ -55,6 +63,7 @@ const MOCK_PARLIAMENT_DATA = [
 const state = {
   chambers: [],
   highlightedByChamber: {},
+  memberFiltersByChamber: {},
   sourceUpdatedAt: null,
 };
 
@@ -85,11 +94,45 @@ function pickShortLabel(group) {
   return group.shortLabel ?? group.abbr ?? group.alias ?? null;
 }
 
+function normalizeMembers(rawMembers) {
+  if (!Array.isArray(rawMembers)) {
+    return [];
+  }
+  return rawMembers
+    .map((member) => {
+      const name = String(member?.name ?? "").trim();
+      if (!name) {
+        return null;
+      }
+      const reading = String(member?.reading ?? "").trim();
+      const party = String(member?.party ?? "").trim();
+      const district = String(member?.district ?? "").trim();
+      const kaiha = String(member?.kaiha ?? member?.group ?? party).trim();
+      return { name, reading, party, district, kaiha };
+    })
+    .filter(Boolean);
+}
+
+function aggregateGroupsFromMembers(members) {
+  const counter = new Map();
+  members.forEach((member) => {
+    const key = member.kaiha || "未分類";
+    counter.set(key, (counter.get(key) || 0) + 1);
+  });
+  return Array.from(counter.entries()).map(([name, seats]) => ({
+    name,
+    seats,
+  }));
+}
+
 function normalizeData(data) {
   return data.map((chamber) => ({
     key: chamber.key,
     house: chamber.house,
-    groups: chamber.groups
+    members: normalizeMembers(chamber.members),
+    groups: (Array.isArray(chamber.groups) && chamber.groups.length > 0
+      ? chamber.groups
+      : aggregateGroupsFromMembers(normalizeMembers(chamber.members)))
       .map((group, index) => ({
         name: group.name,
         seats: Number(group.seats) || 0,
@@ -269,6 +312,120 @@ function renderBlocSummary(chamber) {
   twoThirdNode.querySelector(".bloc-marker-value").textContent = String(twoThirdSeats);
 }
 
+function escapeHtml(text) {
+  return String(text ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function getMemberFilterState(chamberKey) {
+  if (!state.memberFiltersByChamber[chamberKey]) {
+    state.memberFiltersByChamber[chamberKey] = { query: "", kaiha: "all" };
+  }
+  return state.memberFiltersByChamber[chamberKey];
+}
+
+function collectKaihaOptions(chamber) {
+  const names = [];
+  const seen = new Set();
+  chamber.groups.forEach((group) => {
+    if (!seen.has(group.name)) {
+      seen.add(group.name);
+      names.push(group.name);
+    }
+  });
+  chamber.members.forEach((member) => {
+    if (!seen.has(member.kaiha)) {
+      seen.add(member.kaiha);
+      names.push(member.kaiha);
+    }
+  });
+  return names;
+}
+
+function memberMatchesQuery(member, query) {
+  if (!query) {
+    return true;
+  }
+  const target = `${member.name} ${member.reading} ${member.party} ${member.district} ${member.kaiha}`.toLowerCase();
+  return target.includes(query);
+}
+
+function renderMembers(chamber) {
+  const members = chamber.members;
+  const searchNode = document.getElementById(`members-search-${chamber.key}`);
+  const kaihaNode = document.getElementById(`members-kaiha-${chamber.key}`);
+  const countNode = document.getElementById(`members-count-${chamber.key}`);
+  const tbody = document.getElementById(`members-body-${chamber.key}`);
+  if (!searchNode || !kaihaNode || !countNode || !tbody) {
+    return;
+  }
+
+  const filter = getMemberFilterState(chamber.key);
+  if (searchNode.value !== filter.query) {
+    searchNode.value = filter.query;
+  }
+
+  const kaihaOptions = collectKaihaOptions(chamber);
+  const hasSelectedKaiha = filter.kaiha === "all" || kaihaOptions.includes(filter.kaiha);
+  if (!hasSelectedKaiha) {
+    filter.kaiha = "all";
+  }
+  kaihaNode.innerHTML =
+    `<option value="all">全会派</option>` +
+    kaihaOptions.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
+  kaihaNode.value = filter.kaiha;
+
+  const query = filter.query.trim().toLowerCase();
+  const filteredMembers = members.filter((member) => {
+    if (filter.kaiha !== "all" && member.kaiha !== filter.kaiha) {
+      return false;
+    }
+    return memberMatchesQuery(member, query);
+  });
+
+  countNode.textContent = `表示 ${filteredMembers.length} / ${members.length} 人`;
+  if (members.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="members-empty">データがありません（解散など）</td></tr>`;
+  } else if (filteredMembers.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="members-empty">条件に一致する議員がいません</td></tr>`;
+  } else {
+    tbody.innerHTML = filteredMembers
+      .map(
+        (member) => `
+      <tr>
+        <td>${escapeHtml(member.name)}</td>
+        <td>${escapeHtml(member.reading || "-")}</td>
+        <td>${escapeHtml(member.party || "-")}</td>
+        <td>${escapeHtml(member.district || "-")}</td>
+        <td>${escapeHtml(member.kaiha || "-")}</td>
+      </tr>
+    `,
+      )
+      .join("");
+  }
+
+  if (searchNode.dataset.bound !== "1") {
+    searchNode.addEventListener("input", (event) => {
+      const next = getMemberFilterState(chamber.key);
+      next.query = event.target.value ?? "";
+      renderMembers(chamber);
+    });
+    searchNode.dataset.bound = "1";
+  }
+  if (kaihaNode.dataset.bound !== "1") {
+    kaihaNode.addEventListener("change", (event) => {
+      const next = getMemberFilterState(chamber.key);
+      next.kaiha = event.target.value || "all";
+      renderMembers(chamber);
+    });
+    kaihaNode.dataset.bound = "1";
+  }
+}
+
 function updateHighlight(chamber) {
   const root = document.getElementById(`chamber-${chamber.key}`);
   if (!root) {
@@ -296,6 +453,7 @@ function renderChamber(chamber) {
   renderFactionBar(chamber);
   renderBlocSummary(chamber);
   renderLegend(chamber);
+  renderMembers(chamber);
   updateHighlight(chamber);
 }
 
@@ -343,6 +501,36 @@ function renderChamberScaffold(chamber) {
           </table>
         </div>
       </aside>
+      <section class="members-panel">
+        <h3>議員一覧</h3>
+        <div class="members-controls">
+          <input
+            id="members-search-${chamber.key}"
+            class="members-search"
+            type="search"
+            placeholder="氏名・よみ・党派・選挙区・会派で検索"
+            autocomplete="off"
+          >
+          <select id="members-kaiha-${chamber.key}" class="members-kaiha-filter">
+            <option value="all">全会派</option>
+          </select>
+          <div id="members-count-${chamber.key}" class="members-count">表示 0 / 0 人</div>
+        </div>
+        <div class="members-table-wrapper">
+          <table class="members-table">
+            <thead>
+              <tr>
+                <th>氏名</th>
+                <th>よみ</th>
+                <th>党派</th>
+                <th>選挙区</th>
+                <th>会派</th>
+              </tr>
+            </thead>
+            <tbody id="members-body-${chamber.key}"></tbody>
+          </table>
+        </div>
+      </section>
     </section>
   `;
 }

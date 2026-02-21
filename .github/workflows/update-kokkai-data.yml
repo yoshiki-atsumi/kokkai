@@ -1,8 +1,6 @@
 name: Update Kokkai Data
 
 on:
-  schedule:
-    - cron: "0 21 * * *" # JST 06:00
   workflow_dispatch:
 
 permissions:
@@ -22,8 +20,10 @@ jobs:
 
       - name: Fetch spreadsheet and build JSON
         env:
-          SHEET_SYU_URL: ${{ secrets.SHEET_SYU_URL }}
-          SHEET_SAN_URL: ${{ secrets.SHEET_SAN_URL }}
+          SHEET_SYU_MEMBERS_URL: ${{ secrets.SHEET_SYU_MEMBERS_URL }}
+          SHEET_SAN_MEMBERS_URL: ${{ secrets.SHEET_SAN_MEMBERS_URL }}
+          SHEET_SYU_MASTER_URL: ${{ secrets.SHEET_SYU_MASTER_URL }}
+          SHEET_SAN_MASTER_URL: ${{ secrets.SHEET_SAN_MASTER_URL }}
         run: node scripts/fetch-sheet.mjs
 
       - name: Commit updated JSON

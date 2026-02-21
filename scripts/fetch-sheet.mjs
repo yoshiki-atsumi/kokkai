@@ -6,12 +6,28 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, "..");
 const outputPath = path.join(rootDir, "data", "parliament.json");
+const FALLBACK_PALETTE = [
+  "#135ae1",
+  "#d43f3a",
+  "#25a56b",
+  "#f2992e",
+  "#8f56ce",
+  "#17a2b8",
+  "#8a6f3c",
+  "#6e7d8e",
+  "#d84ea5",
+  "#5c4bd8",
+];
 
-const SHEET_SYU_URL = process.env.SHEET_SYU_URL;
-const SHEET_SAN_URL = process.env.SHEET_SAN_URL;
+const SHEET_SYU_MEMBERS_URL = process.env.SHEET_SYU_MEMBERS_URL;
+const SHEET_SAN_MEMBERS_URL = process.env.SHEET_SAN_MEMBERS_URL;
+const SHEET_SYU_MASTER_URL = process.env.SHEET_SYU_MASTER_URL;
+const SHEET_SAN_MASTER_URL = process.env.SHEET_SAN_MASTER_URL;
 
-if (!SHEET_SYU_URL || !SHEET_SAN_URL) {
-  throw new Error("SHEET_SYU_URL と SHEET_SAN_URL を GitHub Secrets に設定してください。");
+if (!SHEET_SYU_MEMBERS_URL || !SHEET_SAN_MEMBERS_URL || !SHEET_SYU_MASTER_URL || !SHEET_SAN_MASTER_URL) {
+  throw new Error(
+    "SHEET_SYU_MEMBERS_URL / SHEET_SAN_MEMBERS_URL / SHEET_SYU_MASTER_URL / SHEET_SAN_MASTER_URL を GitHub Secrets に設定してください。",
+  );
 }
 
 function resolveSheetCsvUrl(rawUrl) {
@@ -86,36 +102,115 @@ function pick(row, names) {
   return "";
 }
 
-function toNumber(value) {
-  const normalized = String(value ?? "").replace(/,/g, "").trim();
-  const num = Number(normalized);
-  return Number.isFinite(num) ? num : 0;
+function normalizeKey(value) {
+  return String(value ?? "").replace(/\s+/g, "").trim().toLowerCase();
 }
 
-function normalizeRows(rows) {
+function normalizeMemberRows(rows) {
   return rows
-    .map((row, idx) => {
-      const name = pick(row, ["name", "会派", "会派名", "党派"]);
-      const seats = toNumber(pick(row, ["seats", "議席数", "議席"]));
-      if (!name || seats <= 0) {
+    .map((row) => {
+      const name = pick(row, ["name", "氏名", "名前", "議員名"]);
+      if (!name) {
         return null;
       }
-      const color = pick(row, ["color", "カラー", "colour"]) || undefined;
-      const shortLabel = pick(row, ["shortLabel", "abbr", "alias", "略称"]) || undefined;
-      const blocRaw = pick(row, ["bloc", "与野党分類", "区分"]).toLowerCase();
-      let bloc = "opposition";
-      if (["government", "gov", "ruling", "与党"].includes(blocRaw)) {
-        bloc = "government";
-      }
-      const orderRaw = pick(row, ["order", "displayOrder", "sortOrder", "順番", "表示順"]);
-      const orderNum = Number(orderRaw);
-      const order = Number.isFinite(orderNum) ? orderNum : idx + 1;
-      return { name, seats, bloc, color, order, shortLabel };
+      const reading = pick(row, ["reading", "よみ", "読み", "ふりがな"]);
+      const party = pick(row, ["party", "党派", "政党"]);
+      const district = pick(row, ["district", "選挙区"]);
+      // kaiha はスプレッドシートの一番右列運用を想定。ヘッダー名で取得する。
+      const kaiha = pick(row, ["kaiha", "会派", "会派名", "会派（集計用）"]) || party || "未分類";
+      return { name, reading, party, district, kaiha };
     })
     .filter(Boolean);
 }
 
-async function fetchSheet(url) {
+function toNumber(value) {
+  const normalized = String(value ?? "").replace(/,/g, "").trim();
+  const num = Number(normalized);
+  return Number.isFinite(num) ? num : null;
+}
+
+function normalizeBloc(value) {
+  const raw = String(value ?? "").trim().toLowerCase();
+  if (["government", "gov", "ruling", "与党"].includes(raw)) {
+    return "government";
+  }
+  return "opposition";
+}
+
+function normalizeMasterRows(rows) {
+  return rows
+    .map((row, idx) => {
+      const name = pick(row, ["name", "会派", "会派名", "kaiha"]);
+      if (!name) {
+        return null;
+      }
+      const orderRaw = pick(row, ["order", "displayOrder", "sortOrder", "順番", "表示順"]);
+      const orderNum = toNumber(orderRaw);
+      return {
+        name,
+        bloc: normalizeBloc(pick(row, ["bloc", "与野党分類", "区分"])),
+        color: pick(row, ["color", "カラー", "colour"]) || undefined,
+        shortLabel: pick(row, ["shortLabel", "abbr", "alias", "略称"]) || undefined,
+        order: orderNum ?? idx + 1,
+      };
+    })
+    .filter(Boolean);
+}
+
+function buildMasterMap(masterRows) {
+  const map = new Map();
+  masterRows.forEach((row) => {
+    map.set(normalizeKey(row.name), row);
+  });
+  return map;
+}
+
+function sortGroups(groups) {
+  return groups.sort((a, b) => {
+    if (a.order !== null || b.order !== null) {
+      const ao = a.order ?? Number.POSITIVE_INFINITY;
+      const bo = b.order ?? Number.POSITIVE_INFINITY;
+      if (ao !== bo) {
+        return ao - bo;
+      }
+    }
+    const aGov = a.bloc === "government" ? 0 : 1;
+    const bGov = b.bloc === "government" ? 0 : 1;
+    if (aGov !== bGov) {
+      return aGov - bGov;
+    }
+    return b.seats - a.seats;
+  });
+}
+
+function aggregateGroupsFromMembers(members, masterMap) {
+  const counter = new Map();
+  members.forEach((member) => {
+    const kaiha = String(member?.kaiha ?? "").trim();
+    if (!kaiha) {
+      return;
+    }
+    counter.set(kaiha, (counter.get(kaiha) || 0) + 1);
+  });
+  const groups = Array.from(counter.entries()).map(([name, seats]) => {
+    const meta = masterMap.get(normalizeKey(name));
+    return {
+      name: meta?.name || name,
+      seats,
+      bloc: meta?.bloc || "opposition",
+      color: meta?.color || undefined,
+      order: typeof meta?.order === "number" ? meta.order : null,
+      shortLabel: meta?.shortLabel || undefined,
+    };
+  });
+  sortGroups(groups);
+  return groups.map((group, idx) => ({
+    ...group,
+    color: group.color || FALLBACK_PALETTE[idx % FALLBACK_PALETTE.length],
+  }));
+}
+
+async function fetchSheetCsvText(url) {
   const csvUrl = resolveSheetCsvUrl(url);
   const res = await fetch(csvUrl, { headers: { "user-agent": "kokkai-fetch-bot" } });
   if (!res.ok) {
@@ -125,21 +220,52 @@ async function fetchSheet(url) {
   if (text.startsWith("<!DOCTYPE html") || text.startsWith("<html")) {
     throw new Error(`Spreadsheet URL is not a CSV endpoint: ${csvUrl}`);
   }
-  const rows = normalizeRows(parseCsv(text));
-  return rows;
+  return text;
+}
+
+async function fetchMemberSheet(url) {
+  const text = await fetchSheetCsvText(url);
+  return normalizeMemberRows(parseCsv(text));
+}
+
+async function fetchMasterSheet(url) {
+  const text = await fetchSheetCsvText(url);
+  return normalizeMasterRows(parseCsv(text));
 }
 
 async function main() {
-  const [representativesRows, councillorsRows] = await Promise.all([
-    fetchSheet(SHEET_SYU_URL),
-    fetchSheet(SHEET_SAN_URL),
+  const [representativesMembers, councillorsMembers, representativesMasterRows, councillorsMasterRows] = await Promise.all([
+    fetchMemberSheet(SHEET_SYU_MEMBERS_URL),
+    fetchMemberSheet(SHEET_SAN_MEMBERS_URL),
+    fetchMasterSheet(SHEET_SYU_MASTER_URL),
+    fetchMasterSheet(SHEET_SAN_MASTER_URL),
   ]);
+  const representativesMasterMap = buildMasterMap(representativesMasterRows);
+  const councillorsMasterMap = buildMasterMap(councillorsMasterRows);
+  const representativesGroups = aggregateGroupsFromMembers(
+    representativesMembers,
+    representativesMasterMap,
+  );
+  const councillorsGroups = aggregateGroupsFromMembers(
+    councillorsMembers,
+    councillorsMasterMap,
+  );
 
   const payload = {
     updatedAt: new Date().toISOString(),
     chambers: [
-      { key: "representatives", house: "衆議院（定数：465）", groups: representativesRows },
-      { key: "councillors", house: "参議院（定数：248）", groups: councillorsRows },
+      {
+        key: "representatives",
+        house: "衆議院（定数：465）",
+        groups: representativesGroups,
+        members: representativesMembers,
+      },
+      {
+        key: "councillors",
+        house: "参議院（定数：248）",
+        groups: councillorsGroups,
+        members: councillorsMembers,
+      },
     ],
   };
 
