@@ -216,7 +216,6 @@ function renderFactionBar(chamber) {
     segment.style.background = group.color;
     segment.title = `${group.name} ${group.seats}議席`;
     segment.textContent = group.shortLabel || shortLabel(group.name);
-    segment.style.cursor = "pointer";
     segment.addEventListener("mouseenter", () => {
       state.highlightedByChamber[chamber.key] = group.name;
       updateHighlight(chamber);
@@ -224,9 +223,6 @@ function renderFactionBar(chamber) {
     segment.addEventListener("mouseleave", () => {
       state.highlightedByChamber[chamber.key] = "";
       updateHighlight(chamber);
-    });
-    segment.addEventListener("click", () => {
-      window.location.href = buildMembersPageUrl(chamber.key, group.name);
     });
     container.appendChild(segment);
   });
