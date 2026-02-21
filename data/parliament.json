@@ -1,6 +1,15 @@
 {
-  "updatedAt": "2026-02-21T10:30:39.988Z",
+  "updatedAt": "2026-02-21T10:36:25.445Z",
   "history": [
+    {
+      "no": 2,
+      "date": "令和8年2月20日",
+      "house": "参議院",
+      "description": "テスト",
+      "kaiha_old": "自民党",
+      "kaiha_new": "参政党",
+      "member": ""
+    },
     {
       "no": 1,
       "date": "令和8年2月18日",
