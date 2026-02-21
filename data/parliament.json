@@ -1,5 +1,16 @@
 {
-  "updatedAt": "2026-02-21T09:40:58.552Z",
+  "updatedAt": "2026-02-21T10:30:39.988Z",
+  "history": [
+    {
+      "no": 1,
+      "date": "令和8年2月18日",
+      "house": "衆議院",
+      "description": "第51回衆議院選挙に当選した議員の会派情報を反映しました。",
+      "kaiha_old": "",
+      "kaiha_new": "",
+      "member": ""
+    }
+  ],
   "chambers": [
     {
       "key": "representatives",
