@@ -60,9 +60,22 @@ const MOCK_PARLIAMENT_DATA = [
   },
 ];
 
+const MOCK_HISTORY_DATA = [
+  {
+    no: 1,
+    date: "令和8年2月18日",
+    house: "衆議院",
+    description: "第51回衆議院選挙に当選した議員の会派情報を反映しました。",
+    kaiha_old: "",
+    kaiha_new: "",
+    member: "",
+  },
+];
+
 const state = {
   chambers: [],
   highlightedByChamber: {},
+  history: [],
   sourceUpdatedAt: null,
 };
 
@@ -158,6 +171,24 @@ function normalizeData(data) {
         return b.seats - a.seats;
       }),
   }));
+}
+
+function normalizeHistory(raw) {
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+  return raw
+    .map((item, idx) => ({
+      no: Number(item?.no) || idx + 1,
+      date: String(item?.date ?? item?.data ?? "").trim(),
+      house: String(item?.house ?? "").trim(),
+      description: String(item?.description ?? "").trim(),
+      kaiha_old: String(item?.kaiha_old ?? item?.kaihaOld ?? "").trim(),
+      kaiha_new: String(item?.kaiha_new ?? item?.kaihaNew ?? "").trim(),
+      member: String(item?.member ?? "").trim(),
+    }))
+    .filter((item) => item.date || item.house || item.description || item.kaiha_old || item.kaiha_new || item.member)
+    .sort((a, b) => (b.no || 0) - (a.no || 0));
 }
 
 function renderFactionBar(chamber) {
@@ -331,6 +362,39 @@ function buildMembersPageUrl(chamberKey, kaihaName) {
   return `./members.html?${params.toString()}`;
 }
 
+function renderHistory() {
+  const node = document.getElementById("history-list");
+  if (!node) {
+    return;
+  }
+  if (!Array.isArray(state.history) || state.history.length === 0) {
+    node.innerHTML = `<div class="history-empty">履歴データがありません</div>`;
+    return;
+  }
+  node.innerHTML = state.history
+    .map((item) => {
+      const details = [
+        item.kaiha_old ? `旧会派: ${item.kaiha_old}` : "",
+        item.kaiha_new ? `新会派: ${item.kaiha_new}` : "",
+        item.member ? `議員: ${item.member}` : "",
+      ]
+        .filter(Boolean)
+        .join(" / ");
+      return `
+      <article class="history-item">
+        <div class="history-item-head">
+          <span class="history-no">No.${escapeHtml(item.no)}</span>
+          <span class="history-date">${escapeHtml(item.date || "-")}</span>
+          <span class="history-house">${escapeHtml(item.house || "-")}</span>
+        </div>
+        <div class="history-description">${escapeHtml(item.description || "-")}</div>
+        ${details ? `<div class="history-detail">${escapeHtml(details)}</div>` : ""}
+      </article>
+    `;
+    })
+    .join("");
+}
+
 function updateHighlight(chamber) {
   const root = document.getElementById(`chamber-${chamber.key}`);
   if (!root) {
@@ -443,19 +507,27 @@ async function getParliamentData() {
       throw new Error("Invalid JSON structure: chambers is missing");
     }
     state.sourceUpdatedAt = payload.updatedAt || null;
-    return chambers;
+    return {
+      chambers,
+      history: Array.isArray(payload?.history) ? payload.history : [],
+    };
   } catch (error) {
     console.warn("静的JSONの取得に失敗したためモックデータを使用します", error);
     state.sourceUpdatedAt = null;
-    return MOCK_PARLIAMENT_DATA;
+    return {
+      chambers: MOCK_PARLIAMENT_DATA,
+      history: MOCK_HISTORY_DATA,
+    };
   }
 }
 
 async function bootstrap() {
-  const raw = await getParliamentData();
-  state.chambers = normalizeData(raw);
+  const payload = await getParliamentData();
+  state.chambers = normalizeData(payload.chambers);
+  state.history = normalizeHistory(payload.history);
   renderAllScaffolds();
   state.chambers.forEach((chamber) => renderChamber(chamber));
+  renderHistory();
   updateTimestamp();
 }
 

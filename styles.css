@@ -79,6 +79,71 @@ body {
   box-sizing: border-box;
 }
 
+.history-panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  padding: 10px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .history-panel {
+    border-radius: 10px;
+    padding: 12px;
+  }
+}
+
+.history-title {
+  margin: 0 0 8px 0;
+  font-size: clamp(1rem, 3.4vw, 1.12rem);
+}
+
+.history-list {
+  display: grid;
+  gap: 8px;
+}
+
+.history-item {
+  border: 1px solid #ececec;
+  border-radius: 8px;
+  background: #fff;
+  padding: 8px;
+}
+
+.history-item-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 0.85rem;
+  color: #444;
+}
+
+.history-no {
+  font-weight: 700;
+}
+
+.history-description {
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.history-detail {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.history-empty {
+  padding: 12px;
+  text-align: center;
+  color: #999;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  background: #f9f9f9;
+}
+
 .chamber-block {
   display: grid;
   gap: 10px;

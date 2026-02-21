@@ -24,6 +24,7 @@ jobs:
           SHEET_SAN_MEMBERS_URL: ${{ secrets.SHEET_SAN_MEMBERS_URL }}
           SHEET_SYU_MASTER_URL: ${{ secrets.SHEET_SYU_MASTER_URL }}
           SHEET_SAN_MASTER_URL: ${{ secrets.SHEET_SAN_MASTER_URL }}
+          SHEET_HISTORY_URL: ${{ secrets.SHEET_HISTORY_URL }}
         run: node scripts/fetch-sheet.mjs
 
       - name: Commit updated JSON

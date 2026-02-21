@@ -23,10 +23,11 @@ const SHEET_SYU_MEMBERS_URL = process.env.SHEET_SYU_MEMBERS_URL;
 const SHEET_SAN_MEMBERS_URL = process.env.SHEET_SAN_MEMBERS_URL;
 const SHEET_SYU_MASTER_URL = process.env.SHEET_SYU_MASTER_URL;
 const SHEET_SAN_MASTER_URL = process.env.SHEET_SAN_MASTER_URL;
+const SHEET_HISTORY_URL = process.env.SHEET_HISTORY_URL;
 
-if (!SHEET_SYU_MEMBERS_URL || !SHEET_SAN_MEMBERS_URL || !SHEET_SYU_MASTER_URL || !SHEET_SAN_MASTER_URL) {
+if (!SHEET_SYU_MEMBERS_URL || !SHEET_SAN_MEMBERS_URL || !SHEET_SYU_MASTER_URL || !SHEET_SAN_MASTER_URL || !SHEET_HISTORY_URL) {
   throw new Error(
-    "SHEET_SYU_MEMBERS_URL / SHEET_SAN_MEMBERS_URL / SHEET_SYU_MASTER_URL / SHEET_SAN_MASTER_URL を GitHub Secrets に設定してください。",
+    "SHEET_SYU_MEMBERS_URL / SHEET_SAN_MEMBERS_URL / SHEET_SYU_MASTER_URL / SHEET_SAN_MASTER_URL / SHEET_HISTORY_URL を GitHub Secrets に設定してください。",
   );
 }
 
@@ -157,6 +158,34 @@ function normalizeMasterRows(rows) {
     .filter(Boolean);
 }
 
+function normalizeHistoryRows(rows) {
+  return rows
+    .map((row, idx) => {
+      const noRaw = pick(row, ["No.", "No", "no", "番号"]);
+      const noNum = toNumber(noRaw);
+      const date = pick(row, ["date", "data", "日付", "更新日"]);
+      const house = pick(row, ["house", "院", "議院", "対象院"]);
+      const description = pick(row, ["description", "概要", "内容"]);
+      const kaihaOld = pick(row, ["kaiha_old", "kaihaOld", "会派旧", "旧会派"]);
+      const kaihaNew = pick(row, ["kaiha_new", "kaihaNew", "会派新", "新会派"]);
+      const member = pick(row, ["member", "member_name", "議員", "議員名"]);
+      if (!date && !house && !description && !kaihaOld && !kaihaNew && !member) {
+        return null;
+      }
+      return {
+        no: noNum ?? idx + 1,
+        date,
+        house,
+        description,
+        kaiha_old: kaihaOld,
+        kaiha_new: kaihaNew,
+        member,
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => (b.no || 0) - (a.no || 0));
+}
+
 function buildMasterMap(masterRows) {
   const map = new Map();
   masterRows.forEach((row) => {
@@ -233,12 +262,18 @@ async function fetchMasterSheet(url) {
   return normalizeMasterRows(parseCsv(text));
 }
 
+async function fetchHistorySheet(url) {
+  const text = await fetchSheetCsvText(url);
+  return normalizeHistoryRows(parseCsv(text));
+}
+
 async function main() {
-  const [representativesMembers, councillorsMembers, representativesMasterRows, councillorsMasterRows] = await Promise.all([
+  const [representativesMembers, councillorsMembers, representativesMasterRows, councillorsMasterRows, historyRows] = await Promise.all([
     fetchMemberSheet(SHEET_SYU_MEMBERS_URL),
     fetchMemberSheet(SHEET_SAN_MEMBERS_URL),
     fetchMasterSheet(SHEET_SYU_MASTER_URL),
     fetchMasterSheet(SHEET_SAN_MASTER_URL),
+    fetchHistorySheet(SHEET_HISTORY_URL),
   ]);
   const representativesMasterMap = buildMasterMap(representativesMasterRows);
   const councillorsMasterMap = buildMasterMap(councillorsMasterRows);
@@ -253,6 +288,7 @@ async function main() {
 
   const payload = {
     updatedAt: new Date().toISOString(),
+    history: historyRows,
     chambers: [
       {
         key: "representatives",
