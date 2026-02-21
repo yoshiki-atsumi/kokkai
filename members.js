@@ -182,11 +182,11 @@ function renderTable() {
   countNode.textContent = `表示 ${filtered.length} / ${members.length} 人`;
 
   if (members.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4" class="members-empty">データがありません（解散など）</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="3" class="members-empty">データがありません（解散など）</td></tr>`;
     return;
   }
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4" class="members-empty">条件に一致する議員がいません</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="3" class="members-empty">条件に一致する議員がいません</td></tr>`;
     return;
   }
   tbody.innerHTML = filtered
@@ -194,7 +194,6 @@ function renderTable() {
       (member) => `
       <tr>
         <td><a class="member-name-link" href="https://go2senkyo.com/" target="_blank" rel="noopener noreferrer">${escapeHtml(member.name)}</a></td>
-        <td>${escapeHtml(member.reading || "-")}</td>
         <td>${escapeHtml(member.district || "-")}</td>
         <td>${escapeHtml(member.kaiha || "-")}</td>
       </tr>
