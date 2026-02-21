@@ -383,7 +383,6 @@ function renderHistory() {
       return `
       <article class="history-item">
         <div class="history-item-head">
-          <span class="history-no">No.${escapeHtml(item.no)}</span>
           <span class="history-date">${escapeHtml(item.date || "-")}</span>
           <span class="history-house">${escapeHtml(item.house || "-")}</span>
         </div>
