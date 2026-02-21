@@ -1,3 +1,16 @@
+const PALETTE = [
+  "#135ae1",
+  "#d43f3a",
+  "#25a56b",
+  "#f2992e",
+  "#8f56ce",
+  "#17a2b8",
+  "#8a6f3c",
+  "#6e7d8e",
+  "#d84ea5",
+  "#5c4bd8",
+];
+
 const MOCK_PARLIAMENT_DATA = [
   {
     key: "representatives",
@@ -62,7 +75,32 @@ function normalizeData(data) {
     key: chamber.key,
     house: chamber.house,
     members: normalizeMembers(chamber.members),
+    groups: (Array.isArray(chamber.groups) ? chamber.groups : []).map((group, index) => ({
+      name: String(group?.name ?? "").trim(),
+      color: String(group?.color ?? "").trim() || PALETTE[index % PALETTE.length],
+    })),
   }));
+}
+
+function getKaihaColorMap(chamber) {
+  const colorMap = new Map();
+  chamber.groups
+    .filter((group) => group.name)
+    .forEach((group) => {
+      colorMap.set(group.name, group.color);
+    });
+
+  // groups にない会派名が members 側にだけある場合のフォールバック色
+  let paletteIndex = 0;
+  chamber.members.forEach((member) => {
+    if (colorMap.has(member.kaiha)) {
+      return;
+    }
+    colorMap.set(member.kaiha, PALETTE[paletteIndex % PALETTE.length]);
+    paletteIndex += 1;
+  });
+
+  return colorMap;
 }
 
 function getCurrentChamber() {
@@ -180,6 +218,7 @@ function renderTable() {
     return memberMatchesQuery(member, query);
   });
   countNode.textContent = `表示 ${filtered.length} / ${members.length} 人`;
+  const kaihaColorMap = getKaihaColorMap(chamber);
 
   if (members.length === 0) {
     tbody.innerHTML = `<tr><td colspan="3" class="members-empty">データがありません（解散など）</td></tr>`;
@@ -195,7 +234,12 @@ function renderTable() {
       <tr>
         <td><a class="member-name-link" href="https://go2senkyo.com/" target="_blank" rel="noopener noreferrer">${escapeHtml(member.name)}</a></td>
         <td>${escapeHtml(member.district || "-")}</td>
-        <td>${escapeHtml(member.kaiha || "-")}</td>
+        <td>
+          <span class="members-kaiha-cell">
+            <span class="legend-dot" style="background:${escapeHtml(kaihaColorMap.get(member.kaiha) || "#999999")}"></span>
+            <span>${escapeHtml(member.kaiha || "-")}</span>
+          </span>
+        </td>
       </tr>
     `,
     )

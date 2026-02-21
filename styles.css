@@ -544,6 +544,12 @@ body {
   white-space: nowrap;
 }
 
+.members-kaiha-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .members-table th {
   color: #555;
   font-weight: 700;
