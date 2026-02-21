@@ -63,7 +63,6 @@ const MOCK_PARLIAMENT_DATA = [
 const state = {
   chambers: [],
   highlightedByChamber: {},
-  memberFiltersByChamber: {},
   sourceUpdatedAt: null,
 };
 
@@ -186,6 +185,7 @@ function renderFactionBar(chamber) {
     segment.style.background = group.color;
     segment.title = `${group.name} ${group.seats}議席`;
     segment.textContent = group.shortLabel || shortLabel(group.name);
+    segment.style.cursor = "pointer";
     segment.addEventListener("mouseenter", () => {
       state.highlightedByChamber[chamber.key] = group.name;
       updateHighlight(chamber);
@@ -193,6 +193,9 @@ function renderFactionBar(chamber) {
     segment.addEventListener("mouseleave", () => {
       state.highlightedByChamber[chamber.key] = "";
       updateHighlight(chamber);
+    });
+    segment.addEventListener("click", () => {
+      window.location.href = buildMembersPageUrl(chamber.key, group.name);
     });
     container.appendChild(segment);
   });
@@ -223,7 +226,7 @@ function renderLegend(chamber) {
     tr.innerHTML = `
       <td class="legend-name-cell">
         <span class="legend-dot" style="background:${group.color}"></span>
-        <span>${group.name}</span>
+        <a class="group-link" href="${buildMembersPageUrl(chamber.key, group.name)}">${group.name}</a>
       </td>
       <td>${group.bloc === "government" ? "与党" : "野党・他"}</td>
       <td>${group.seats}</td>
@@ -321,109 +324,11 @@ function escapeHtml(text) {
     .replaceAll("'", "&#39;");
 }
 
-function getMemberFilterState(chamberKey) {
-  if (!state.memberFiltersByChamber[chamberKey]) {
-    state.memberFiltersByChamber[chamberKey] = { query: "", kaiha: "all" };
-  }
-  return state.memberFiltersByChamber[chamberKey];
-}
-
-function collectKaihaOptions(chamber) {
-  const names = [];
-  const seen = new Set();
-  chamber.groups.forEach((group) => {
-    if (!seen.has(group.name)) {
-      seen.add(group.name);
-      names.push(group.name);
-    }
-  });
-  chamber.members.forEach((member) => {
-    if (!seen.has(member.kaiha)) {
-      seen.add(member.kaiha);
-      names.push(member.kaiha);
-    }
-  });
-  return names;
-}
-
-function memberMatchesQuery(member, query) {
-  if (!query) {
-    return true;
-  }
-  const target = `${member.name} ${member.reading} ${member.party} ${member.district} ${member.kaiha}`.toLowerCase();
-  return target.includes(query);
-}
-
-function renderMembers(chamber) {
-  const members = chamber.members;
-  const searchNode = document.getElementById(`members-search-${chamber.key}`);
-  const kaihaNode = document.getElementById(`members-kaiha-${chamber.key}`);
-  const countNode = document.getElementById(`members-count-${chamber.key}`);
-  const tbody = document.getElementById(`members-body-${chamber.key}`);
-  if (!searchNode || !kaihaNode || !countNode || !tbody) {
-    return;
-  }
-
-  const filter = getMemberFilterState(chamber.key);
-  if (searchNode.value !== filter.query) {
-    searchNode.value = filter.query;
-  }
-
-  const kaihaOptions = collectKaihaOptions(chamber);
-  const hasSelectedKaiha = filter.kaiha === "all" || kaihaOptions.includes(filter.kaiha);
-  if (!hasSelectedKaiha) {
-    filter.kaiha = "all";
-  }
-  kaihaNode.innerHTML =
-    `<option value="all">全会派</option>` +
-    kaihaOptions.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
-  kaihaNode.value = filter.kaiha;
-
-  const query = filter.query.trim().toLowerCase();
-  const filteredMembers = members.filter((member) => {
-    if (filter.kaiha !== "all" && member.kaiha !== filter.kaiha) {
-      return false;
-    }
-    return memberMatchesQuery(member, query);
-  });
-
-  countNode.textContent = `表示 ${filteredMembers.length} / ${members.length} 人`;
-  if (members.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="members-empty">データがありません（解散など）</td></tr>`;
-  } else if (filteredMembers.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="members-empty">条件に一致する議員がいません</td></tr>`;
-  } else {
-    tbody.innerHTML = filteredMembers
-      .map(
-        (member) => `
-      <tr>
-        <td>${escapeHtml(member.name)}</td>
-        <td>${escapeHtml(member.reading || "-")}</td>
-        <td>${escapeHtml(member.party || "-")}</td>
-        <td>${escapeHtml(member.district || "-")}</td>
-        <td>${escapeHtml(member.kaiha || "-")}</td>
-      </tr>
-    `,
-      )
-      .join("");
-  }
-
-  if (searchNode.dataset.bound !== "1") {
-    searchNode.addEventListener("input", (event) => {
-      const next = getMemberFilterState(chamber.key);
-      next.query = event.target.value ?? "";
-      renderMembers(chamber);
-    });
-    searchNode.dataset.bound = "1";
-  }
-  if (kaihaNode.dataset.bound !== "1") {
-    kaihaNode.addEventListener("change", (event) => {
-      const next = getMemberFilterState(chamber.key);
-      next.kaiha = event.target.value || "all";
-      renderMembers(chamber);
-    });
-    kaihaNode.dataset.bound = "1";
-  }
+function buildMembersPageUrl(chamberKey, kaihaName) {
+  const params = new URLSearchParams();
+  params.set("chamber", chamberKey);
+  params.set("kaiha", kaihaName);
+  return `./members.html?${params.toString()}`;
 }
 
 function updateHighlight(chamber) {
@@ -453,7 +358,6 @@ function renderChamber(chamber) {
   renderFactionBar(chamber);
   renderBlocSummary(chamber);
   renderLegend(chamber);
-  renderMembers(chamber);
   updateHighlight(chamber);
 }
 
@@ -501,36 +405,6 @@ function renderChamberScaffold(chamber) {
           </table>
         </div>
       </aside>
-      <section class="members-panel">
-        <h3>議員一覧</h3>
-        <div class="members-controls">
-          <input
-            id="members-search-${chamber.key}"
-            class="members-search"
-            type="search"
-            placeholder="氏名・よみ・党派・選挙区・会派で検索"
-            autocomplete="off"
-          >
-          <select id="members-kaiha-${chamber.key}" class="members-kaiha-filter">
-            <option value="all">全会派</option>
-          </select>
-          <div id="members-count-${chamber.key}" class="members-count">表示 0 / 0 人</div>
-        </div>
-        <div class="members-table-wrapper">
-          <table class="members-table">
-            <thead>
-              <tr>
-                <th>氏名</th>
-                <th>よみ</th>
-                <th>党派</th>
-                <th>選挙区</th>
-                <th>会派</th>
-              </tr>
-            </thead>
-            <tbody id="members-body-${chamber.key}"></tbody>
-          </table>
-        </div>
-      </section>
     </section>
   `;
 }

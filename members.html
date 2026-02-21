@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>国会 議員一覧</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="layout">
+    <header class="header">
+      <h1>国会 議員一覧</h1>
+      <p class="subtitle">会派・院を絞り込んで議員一覧を確認できます。</p>
+      <p class="subtitle"><a class="members-entry-link" href="./index.html">会派グラフページへ戻る</a></p>
+      <p id="members-last-updated" class="last-updated">更新日時: --</p>
+    </header>
+
+    <section class="members-panel members-page-panel">
+      <div class="members-controls members-page-controls">
+        <select id="members-page-chamber" class="members-kaiha-filter"></select>
+        <select id="members-page-kaiha" class="members-kaiha-filter"></select>
+        <input
+          id="members-page-search"
+          class="members-search"
+          type="search"
+          placeholder="氏名・よみ・選挙区・会派で検索"
+          autocomplete="off"
+        >
+        <div id="members-page-count" class="members-count">表示 0 / 0 人</div>
+      </div>
+      <div class="members-table-wrapper">
+        <table class="members-table">
+          <thead>
+            <tr>
+              <th>氏名</th>
+              <th>よみ</th>
+              <th>選挙区</th>
+              <th>会派</th>
+            </tr>
+          </thead>
+          <tbody id="members-page-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="./members.js"></script>
+</body>
+</html>
